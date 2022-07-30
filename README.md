@@ -21,6 +21,14 @@ $ python3 autopass.py 'passwd' scp [-P port] <file> username@domain:path
 `-tN`, to specify a timeout in second. SIGKILL will be sent to child process
 after timeout. No timeout by default.
 
+Stdin redirection is also supported:
+
+``` shell
+$ python3 autopass.py 'passwd' ssh name@domain [-p port] 'bash -s' < script.sh
+$ python3 autopass.py 'passwd' sudo <command> < input
+$ echo 'abcd1234' | python3 autopass.py 'passwd' sudo <command>
+```
+
 Password will be issued only once, so if password is not correct,
 the child process will wait for a long time. This is your chance to
 place a timeout. Other cases might be caused by terrible network.

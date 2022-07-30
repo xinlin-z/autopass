@@ -10,6 +10,11 @@ $ python3 autopass.py -V
 $ python3 autopass.py 'passwd' sudo <command>
 $ python3 autopass.py [-t30] 'passwd' ssh username@domain [-p port] <command>
 $ python3 autopass.py 'passwd' scp [-P port] <file> username@domain:path
+
+Stdin redirection is also supported:
+$ python3 autopass.py 'passwd' ssh name@domain [-p port] 'bash -s' < script.sh
+$ python3 autopass.py 'passwd' sudo <command> < input
+$ echo 'abcd1234' | python3 autopass.py 'passwd' sudo <command>
 """
 import sys
 import os
