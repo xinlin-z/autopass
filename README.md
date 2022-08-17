@@ -40,3 +40,12 @@ Exit code of command is return by autopass, so you can use `echo $?` in
 your shell script to check if the command execution is successful.
 
 Have fun...^____^
+
+## restart.sh
+
+This is very tiny shell script which can `restart` you passwd-needed-command
+forever!
+
+``` shell
+$ bash restart.sh 'passwd' <command>
+```
