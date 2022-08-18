@@ -43,9 +43,12 @@ Have fun...^____^
 
 ## restart.sh
 
-This is very tiny shell script which can `restart` you passwd-needed-command
-forever!
+This is very tiny shell script which can `restart` your passwd-needed-command
+forever automatically!
+
+Usage Examples:
 
 ``` shell
 $ bash restart.sh 'passwd' <command>
+$ bash restart.sh 'passwd' <command> >> log 2>&1 &
 ```

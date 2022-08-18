@@ -4,10 +4,9 @@ cd $dn
 
 passwd=$1
 shift
-cmd=$@
 
 while true; do
-    python3 autopass.py $passwd $cmd
+    python3 -u autopass.py $passwd $@
     sleep 8
 done
 
