@@ -5,7 +5,9 @@ cd $dn
 passwd=$1
 shift
 
-trap 'kill9' SIGINT SIGTERM SIGKILL SIGHUP EXIT
+# The signals SIGKILL and SIGSTOP cannot be caught, blocked or ignored.
+# So, we have no need to tray them here.
+trap kill9 SIGINT SIGTERM SIGHUP EXIT
 function kill9() {
     kill -9 $child_pid
     exit $?
@@ -16,7 +18,6 @@ while true; do
     python3 -u autopass.py $passwd $@ &
     child_pid=$!
     wait $child_pid
-    sleep 8
+    sleep 16
 done
-
 
