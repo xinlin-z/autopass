@@ -129,13 +129,13 @@ if __name__ == '__main__':
         out = f.read()
     # not empty means error in child
     if len(out):
-        print('####[autopass] execlp error:', out.decode())
         os.close(fd)
         if not isatty:
             os.close(srp)
             os.close(swp)
         os.wait()
-        sys.exit(8)  # child invoke failed
+        print('#### [autopass] os.execlp error:', out.decode())
+        sys.exit(101)
 
     # check if to write child's stdin
     if not isatty:
@@ -159,11 +159,14 @@ if __name__ == '__main__':
     except OSError:
         pass
 
-    # exit with command exit code
+    # exit code
     _, wstatus = os.wait()
-    if wstatus & 0x00FF != 0:
-        print('\n####[autopass] kill by SIGKILL due to timeout')
-        sys.exit(9)  # kill by SIGKILL
-    sys.exit(os.waitstatus_to_exitcode(wstatus))
+    ec = os.waitstatus_to_exitcode(wstatus)
+    # If cmd process catches signals and then exit normally,
+    # it appears exit normally, os.WIFSIGNALED is False.
+    if os.WIFSIGNALED(wstatus):
+        print('\n#### [autopass] cmd process is killed by %d' % ec)
+        sys.exit(102)
+    sys.exit(ec)
 
 
