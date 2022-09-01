@@ -55,12 +55,12 @@ def _comm(fd, passwd):
             continue
 
         if (b'Are you sure you want to continue'
-                b' connecting (yes/no/[fingerprint])' in out):
+                b' connecting (yes/no/[fingerprint])?' in out):
             wf.write('yes\n'.encode())
             wf.flush()
             print(out.decode(), end='')
             out = b''
-        elif re.search(rb'[Pp]assword', out):
+        elif re.search(rb'[Pp]assword.*?:', out):
             wf.write((passwd+'\n').encode())
             wf.flush()
             passed = True
