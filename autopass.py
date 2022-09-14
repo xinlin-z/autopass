@@ -91,7 +91,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     if args.p is None:
         try:
-            args.p = os.environ['AUTOPASS']
+            args.p = os.environ['AUTOPASS'].strip()
         except KeyError:
             print('#### [autopass] no password provided and found in environ')
 
