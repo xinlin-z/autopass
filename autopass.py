@@ -3,18 +3,7 @@
 Author: xinlin-z
 Blog:   https://cs.pynote.net
 Github: https://github.com/xinlin-z/autopass
-
-Usage Examples:
-$ python3 autopass.py -h
-$ python3 autopass.py -V
-$ python3 autopass.py 'passwd' sudo <command>
-$ python3 autopass.py [-t30] 'passwd' ssh username@domain [-p port] <command>
-$ python3 autopass.py 'passwd' scp [-P port] <file> username@domain:path
-
-Stdin redirection is also supported:
-$ python3 autopass.py 'passwd' ssh name@domain [-p port] 'bash -s' < script.sh
-$ python3 autopass.py 'passwd' sudo <command> < input
-$ echo 'abcd1234' | python3 autopass.py 'passwd' sudo <command>
+License:MIT
 """
 import sys
 import os
@@ -87,11 +76,11 @@ def _timeout_kill(pid, timeout):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-V', '--version', action='version',
-                version='V0.10 by xinlin-z with love of Python')
+                version='V0.11 by xinlin-z with love')
     parser.add_argument('-t', type=int, metavar='seconds',
                 help='SIGKILL will be sent after this seconds')
-    parser.add_argument('passwd',
-                help='the password which will be entered automatically')
+    parser.add_argument('-p', metavar='password',
+                help='password which will be feeded automatically')
     parser.add_argument('cmd', nargs=argparse.REMAINDER,
                 help='the command line you want to executed')
 
@@ -100,6 +89,11 @@ if __name__ == '__main__':
     # They are all shell's, such as >, >>, <, <<, <<<, |, # comments,
     # and they are all supported!
     args = parser.parse_args()
+    if args.p is None:
+        try:
+            args.p = os.environ['AUTOPASS']
+        except KeyError:
+            print('#### [autopass] no password provided and found in environ')
 
     # check stdin if need to create another pipe
     isatty = sys.stdin.isatty()
@@ -149,7 +143,7 @@ if __name__ == '__main__':
 
     # communication with control terminal of child
     th = threading.Thread(target=_comm,
-                          args=(fd,args.passwd.strip()), daemon=True)
+                          args=(fd,args.p), daemon=True)
     th.start()
     th.join()
 

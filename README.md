@@ -17,20 +17,30 @@ Usage Examples:
 ``` shell
 $ python3 autopass.py -h
 $ python3 autopass.py -V
-$ python3 autopass.py 'passwd' sudo <command>
-$ python3 autopass.py [-t30] 'passwd' ssh username@domain [-p port] <command>
-$ python3 autopass.py 'passwd' scp [-P port] <file> username@domain:path
+$ python3 autopass.py -p'passwd' sudo <command>
+$ python3 autopass.py [-t300] -p'passwd' ssh username@domain [-p port] <command>
+$ python3 autopass.py -p'passwd' scp [-P port] <file> username@domain:path
+```
+
+You can also export your password to `AUTOPASS` environment variable, this
+can significantly reduce the exposure of password itself,
+improve security. Like:
+
+``` shell
+$ export AUTOPASS=password
+$ python3 autopass.py [-t300] ssh -l username domain.com [-p port] <command>
 ```
 
 `-tN`, to specify a timeout in seconds. SIGKILL will be issued to
 child process when timeout. No timeout by default.
 
-Stdin redirection is also supported:
+`stdin redirection` is also supported:
 
 ``` shell
-$ python3 autopass.py 'passwd' ssh name@domain [-p port] 'bash -s' < script.sh
-$ python3 autopass.py 'passwd' sudo <command> < input
-$ echo 'abcd1234' | python3 autopass.py 'passwd' sudo <command>
+$ export AUTOPASS=password
+$ python3 autopass.py ssh name@domain [-p port] 'bash -s' < script.sh
+$ python3 autopass.py sudo <command> < input
+$ echo 'abcd1234' | python3 autopass.py sudo <command>
 ```
 
 Password will be issued only once, so if the password is not correct,
@@ -40,7 +50,9 @@ You can always place a relatively large timeout value to keep you from
 waiting like forever.
 
 Autopass is focused on command execution, locally or remotely. It cannot
-be used interactively.
+be used interactively. And please do not start a background process by
+autopass, like `-f` option of ssh. It is an error. But you definitely
+could run autopass with command as a whole in background (use `&`).
 
 Exit code of command is return by autopass, so you can use `echo $?` in
 your shell script to check if the command execution is successful.
@@ -53,8 +65,14 @@ passwd-needed-command forever automatically!
 Usage Examples:
 
 ``` shell
-$ bash restart.sh 'passwd' <command>
-$ bash restart.sh 'passwd' <command> >> log 2>&1 &
+$ export AUTOPASS=password
+$ bash restart.sh <command>
+$ bash restart.sh <command> >> log 2>&1 &
 ```
+
+Please do not start a background process by restart.sh,
+like the `-f` option of ssh. It will cause autopass exit immediately and
+restart another same process after a while. But you definitely could
+run restart.sh in background.
 
 Have fun...^____^
