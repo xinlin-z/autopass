@@ -66,8 +66,16 @@ Usage Examples:
 
 ``` shell
 $ export AUTOPASS=password
-$ bash restart.sh <command>
-$ bash restart.sh <command> >> log 2>&1 &
+$ bash restart.sh sudo <command>
+$ bash restart.sh <ssh command> >> log 2>&1 &
+```
+
+`stdin redirection` is also supported by simple quoting the whole command:
+
+``` shell
+$ export AUTOPASS=password
+$ bash restart.sh 'sudo <command> | <command>'
+$ bash restart.sh '<ssh command> bash -s < script.sh'
 ```
 
 Please do not start a background process by restart.sh,
