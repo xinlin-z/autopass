@@ -35,11 +35,11 @@ def _comm(fd, passwd):
             # The underlying process has been exitsed.
             # When in the case of no password needed,
             # here is the chance to print all out.
-            print(out.decode(), end='')
+            print(out.decode(), end='', flush=True)
             break
 
         if passed:
-            print(out.decode(), end='')
+            print(out.decode(), end='', flush=True)
             out = b''
             continue
 
@@ -47,13 +47,13 @@ def _comm(fd, passwd):
                 b' connecting (yes/no/[fingerprint])?' in out):
             wf.write('yes\n'.encode())
             wf.flush()
-            print(out.decode(), end='')
+            print(out.decode(), end='', flush=True)
             out = b''
         elif re.search(rb'[Pp]assword.*?:', out):
             wf.write((passwd+'\n').encode())
             wf.flush()
             passed = True
-            print(out.decode(), end='')
+            print(out.decode(), end='', flush=True)
             out = b''
 
 
