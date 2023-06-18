@@ -1,4 +1,6 @@
-{toc}
+* [Autopass Intro](#Autopass-Intro)
+* [Usage Examples](#Usage-Examples)
+* [restart.sh](#restartsh)
 
 # Autopass Intro
 
