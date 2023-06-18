@@ -99,18 +99,25 @@ if __name__ == '__main__':
                 help='the command you want to executed')
     args = parser.parse_args()
 
+    # check stdin if need to create another pipe
+    isatty = sys.stdin.isatty()
+    if not isatty:
+        srp, swp = os.pipe()
+
     # Please Quote the Password when input manually.
     # It's too easy to fail because of the special characters shell knows.
     if args.p is None:
         try:
             args.p = os.environ['AUTOPASS'].strip()
         except KeyError:
-            print('#### [autopass] no password provided or found in env')
-
-    # check stdin if need to create another pipe
-    isatty = sys.stdin.isatty()
-    if not isatty:
-        srp, swp = os.pipe()
+            nopasswd = True
+            if not isatty:
+                args.p = os.read(sys.stdin.fileno(),64).decode()
+                if args.p != '':
+                    nopasswd = False
+            if nopasswd:
+                print('#### [autopass] no password found')
+                sys.exit(1)
 
     # pipe & pty.fork
     rp, wp = os.pipe()
