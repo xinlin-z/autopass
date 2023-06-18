@@ -108,7 +108,7 @@ if __name__ == '__main__':
     # It's too easy to fail because of the special characters shell knows.
     if args.p is None:
         try:
-            args.p = os.environ['AUTOPASS'].strip()
+            args.p = os.environ['AUTOPASS']
         except KeyError:
             nopasswd = True
             if not isatty:
@@ -162,7 +162,7 @@ if __name__ == '__main__':
 
     # communication with control terminal of child
     th = threading.Thread(target=_comm,
-                          args=(fd,args.p), daemon=True)
+                          args=(fd,args.p.strip()), daemon=True)
     th.start()
     th.join()
 
