@@ -1,34 +1,36 @@
-# autopass
+{toc}
 
-Input password automatically for sudo, ssh(remote command) and scp,
+# Autopass Intro
+
+Enter password automatically for sudo, ssh(remote command) and scp,
 like sshpass.
 
 This is a pure python version which can help you input password for sudo,
-ssh, scp. For ssh, a `yes` confirmation is also
-issued automatically for you if needed.
+ssh, scp. For ssh, a `yes` confirmation is also issued automatically
+for you if necessary.
 
 **No third party module is needed! No need pexpect!**
 
 > The password-input-matching-pattern is fixed and dedicated for sudo,
 ssh and scp in source code.
 
-Usage Examples:
+# Usage Examples
 
 ``` shell
-$ python3 autopass.py -h
-$ python3 autopass.py -V
-$ python3 autopass.py -p'passwd' sudo <command>
-$ python3 autopass.py [-t300] -p'passwd' ssh username@domain [-p port] <command>
-$ python3 autopass.py -p'passwd' scp [-P port] <file> username@domain:path
+$ python autopass.py -h
+$ python autopass.py -V
+$ python autopass.py -p'passwd' sudo <command>
+$ python autopass.py [-t300] -p'passwd' ssh username@domain [-p port] <command>
+$ python autopass.py -p'passwd' scp [-P port] <file> username@domain:path
 ```
 
-You can also export your password to `AUTOPASS` environment variable, this
+You can also export password to `AUTOPASS` environment variable, this
 can significantly reduce the exposure of password itself,
 improve security. Like:
 
 ``` shell
 $ export AUTOPASS=password
-$ python3 autopass.py [-t300] ssh -l username domain.com [-p port] <command>
+$ python autopass.py [-t300] ssh -l username domain.com [-p port] <command>
 ```
 
 `-tN`, to specify a timeout in seconds. SIGKILL will be issued to
@@ -38,9 +40,15 @@ child process when timeout. No timeout by default.
 
 ``` shell
 $ export AUTOPASS=password
-$ python3 autopass.py ssh name@domain [-p port] 'bash -s' < script.sh
-$ python3 autopass.py sudo <command> < input
-$ echo 'abcd1234' | python3 autopass.py sudo <command>
+$ python autopass.py ssh name@domain [-p port] 'bash -s' < script.sh
+$ python autopass.py sudo <command> < input
+```
+
+And password can also be redirected into stdin:
+
+```shell
+$ echo -n 'abcd1234' | python3 autopass.py sudo <command>
+$ python autopass.py sudo <command> <<< 'abcd1234'
 ```
 
 Password will be issued only once, so if the password is not correct,
@@ -57,7 +65,7 @@ could run autopass with command as a whole in background (use `&`).
 Exit code of command is return by autopass, so you can use `echo $?` in
 your shell script to check if the command execution is successful.
 
-## restart.sh
+# restart.sh
 
 This is a very tiny shell script which can `restart` your
 passwd-needed-command forever automatically!
@@ -70,7 +78,7 @@ $ bash restart.sh sudo <command>
 $ bash restart.sh <ssh command> >> log 2>&1 &
 ```
 
-`stdin redirection` is also supported by simple quoting the whole command:
+`stdin redirection` is supported by simple quoting the whole command:
 
 ``` shell
 $ export AUTOPASS=password
