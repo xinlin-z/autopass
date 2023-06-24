@@ -1,8 +1,8 @@
-* [Autopass Intro](#Autopass-Intro)
-* [Usage Examples](#Usage-Examples)
-* [restart.sh](#restartsh)
+* [Autopass](#Autopass)
+    * [Usage Examples](#Usage-Examples)
+* [repeat.sh](#repeatsh)
 
-# Autopass Intro
+# Autopass
 
 Enter password automatically for sudo, ssh(remote command) and scp,
 like sshpass.
@@ -16,7 +16,7 @@ for you if necessary.
 > The password-input-matching-pattern is fixed and dedicated for sudo,
 ssh and scp in source code.
 
-# Usage Examples
+## Usage Examples
 
 ``` shell
 $ python autopass.py -h
@@ -67,30 +67,31 @@ could run autopass with command as a whole in background (use `&`).
 Exit code of command is return by autopass, so you can use `echo $?` in
 your shell script to check if the command execution is successful.
 
-# restart.sh
+# repeat.sh
 
-This is a very tiny shell script which can `restart` your
-passwd-needed-command forever automatically!
+This is a very tiny shell script which can `repeat` your
+whatever-command forever automatically! When use it with autopass,
+it would be more powerful!
 
 Usage Examples:
 
 ``` shell
 $ export AUTOPASS=password
-$ bash restart.sh sudo <command>
-$ bash restart.sh <ssh command> >> log 2>&1 &
+$ bash repeat.sh python autopass.py sudo <command>
+$ bash repeat.sh python autopass.py <ssh command> >> log 2>&1 &
 ```
 
 `stdin redirection` is supported by simple quoting the whole command:
 
 ``` shell
 $ export AUTOPASS=password
-$ bash restart.sh 'sudo <command> | <command>'
-$ bash restart.sh '<ssh command> bash -s < script.sh'
+$ bash repeat.sh 'python autopass.py sudo <command> | <command>'
+$ bash repeat.sh 'python autopass.py <ssh command> bash -s < script.sh'
 ```
 
-Please do not start a background process by restart.sh,
-like the `-f` option of ssh. It will cause autopass exit immediately and
-restart another same process after a while. But you definitely could
-run restart.sh in background.
+Please do not start a background process by repeat.sh,
+like the `-f` option of ssh. It will cause autopass exit immediately.
+But you definitely could run repeat.sh in background.
 
 Have fun...^____^
+

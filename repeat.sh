@@ -11,12 +11,15 @@ function kill9() {
     exit $?
 }
 
+
 while true; do
-    echo ---- start at: $(date)
-    bash -c "python3 -u autopass.py $*" &
+    echo '*' $(date)
+    echo '*' $ "$*"
+    bash -c "$*" &
     child_pid=$!
     wait $child_pid
-    echo ---- exit code $?
-    sleep 16
+    echo '*' $(date)
+    echo '*' exit code: $?
+    sleep 5
 done
 

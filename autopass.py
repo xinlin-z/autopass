@@ -106,6 +106,7 @@ if __name__ == '__main__':
 
     # Please Quote the Password when input manually.
     # It's too easy to fail because of the special characters shell knows.
+    # Pay attention to character $, maybe it should be backslashed, \$.
     if args.p is None:
         try:
             args.p = os.environ['AUTOPASS']
