@@ -79,7 +79,7 @@ def _timeout_kill(pid):
         pass
 
 
-_VER = 'autopass V0.12 by xinlin-z with love'\
+_VER = 'autopass V0.13 by xinlin-z'\
        ' (https://github.com/xinlin-z/autopass)'
 
 
@@ -117,7 +117,7 @@ if __name__ == '__main__':
                 if args.p != '':
                     nopasswd = False
             if nopasswd:
-                print('#### [autopass] no password found')
+                print('* [autopass] no password found')
                 sys.exit(1)
 
     # pipe & pty.fork
@@ -148,7 +148,7 @@ if __name__ == '__main__':
             os.close(srp)
             os.close(swp)
         os.wait()
-        print('#### [autopass] os.execlp error:', out.decode())
+        print('* [autopass] os.execlp error:', out.decode())
         sys.exit(101)
 
     # check if to write child's stdin
@@ -179,7 +179,7 @@ if __name__ == '__main__':
     # If command process catches signals and then exit normally,
     # it appears exit normally, os.WIFSIGNALED is False.
     if os.WIFSIGNALED(wstatus):
-        print('\n#### [autopass] command process is killed by %d' % ec)
+        print('\n* [autopass] child process was killed by %d' % ec)
         sys.exit(102)
     sys.exit(ec)
 
