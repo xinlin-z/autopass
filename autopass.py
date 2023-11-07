@@ -18,9 +18,6 @@ import argparse
 import signal
 
 
-# os.read is low-level, which only read once and return,
-# set this variable to 1 to test this app,
-# set to 1024 for normal operation!
 OS_READ_CHUNK = 1024
 
 
@@ -36,9 +33,9 @@ def _comm(fd, passwd):
         try:
             out += os.read(fd, OS_READ_CHUNK)
         except OSError:
-            # The underlying process has been exitsed.
-            # When in the case of no password needed,
-            # here is the chance to print all out.
+            # The child process has been existed.
+            # When in case that no password is needed,
+            # here is the place to print all out.
             print(out.decode(), end='', flush=True)
             break
 
@@ -48,9 +45,9 @@ def _comm(fd, passwd):
             out = b''
             slen = 0
             continue
-
+        # pattern for ssh and sudo
         if (b'Are you sure you want to continue'
-                b' connecting (yes/no/[fingerprint])?' in out):
+            b' connecting (yes/no/[fingerprint])?' in out):
             wf.write('yes\n'.encode())
             wf.flush()
             out = b''
@@ -66,7 +63,7 @@ def _comm(fd, passwd):
 def _write_stdin(swp):
     stdin = sys.stdin.fileno()
     wf = open(swp, 'wb')  # buffered binary IO
-    while out:=os.read(stdin, OS_READ_CHUNK):
+    while out:=os.read(stdin,OS_READ_CHUNK):
         wf.write(out)
     wf.flush()  # flush at last
     wf.close()  # closefd=True is the default in open call
@@ -91,8 +88,8 @@ if __name__ == '__main__':
     parser.add_argument('-p', metavar='password',
                 help='the password string used by autopass')
 
-    # Command line's special components will not be included
-    # in sys.argv list, and so for args.cmd list defined below.
+    # Command line's special components will neither be included
+    # in sys.argv list, and nor for args.cmd list defined below.
     # They are all shell's, such as >, >>, <, <<, <<<, |, # comments,
     # and they are all supported!
     parser.add_argument('cmd', nargs=argparse.REMAINDER,
@@ -104,21 +101,16 @@ if __name__ == '__main__':
     if not isatty:
         srp, swp = os.pipe()
 
-    # Please QUOTE the password when input manually!!
+    # Please single-quote the password when input manually!!
     # It's too easy to fail because of the special characters shell knows.
-    # Pay attention to character $, maybe it should be escaped, like \$.
+    # Pay attention to character $, it must be escaped, like \$, when
+    # you use double-quote!
     if args.p is None:
         try:
-            args.p = os.environ['AUTOPASS']
+            args.p = os.environ['AUTOPASS'].strip()
         except KeyError:
-            nopasswd = True
-            if not isatty:
-                args.p = os.read(sys.stdin.fileno(),64).decode()
-                if args.p != '':
-                    nopasswd = False
-            if nopasswd:
-                print('* [autopass] no password found')
-                sys.exit(1)
+            print('* [autopass] no password found')
+            sys.exit(1)
 
     # pipe & pty.fork
     rp, wp = os.pipe()
@@ -139,10 +131,10 @@ if __name__ == '__main__':
 
     # parent, must close(wp) first
     os.close(wp)
-    with open(rp, 'rb') as f:
+    with open(rp,'rb') as f:
         out = f.read()
     # not empty means error in child
-    if len(out):
+    if out:
         os.close(fd)
         if not isatty:
             os.close(srp)
@@ -151,23 +143,22 @@ if __name__ == '__main__':
         print('* [autopass] os.execlp error:', out.decode())
         sys.exit(101)
 
-    # check if to write child's stdin
+    # check if need to write child's stdin
     if not isatty:
-        th = threading.Thread(target=_write_stdin, args=(swp,), daemon=True)
-        th.start()
+        threading.Thread(target=_write_stdin,args=(swp,),daemon=True).start()
 
-    # check if to start SIGKILL timer
+    # check if need to start SIGKILL timer
     if args.t:
-        tk = threading.Timer(args.t, _timeout_kill, (pid,))
-        tk.start()
+        threading.Timer(args.t, _timeout_kill, (pid,)).start()
 
-    # communication with control terminal of child
+    # communicate with control terminal of child
     th = threading.Thread(target=_comm,
-                          args=(fd,args.p.strip()), daemon=True)
+                          args=(fd,args.p.strip()),
+                          daemon=True)
     th.start()
     th.join()
 
-    # try to close controlling terminal's fd, which always failed.
+    # try to close controlling terminal's fd.
     try:
         os.close(fd)
     except OSError:
