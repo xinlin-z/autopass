@@ -87,16 +87,16 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-V', '--version', action='version', version=_VER)
     parser.add_argument('-t', type=int, metavar='seconds',
-                help='SIGKILL will be sent after this seconds')
+                help='timeout for issuing SIGKILL')
     parser.add_argument('-p', metavar='password',
-                help='password which will be feeded automatically')
+                help='the password string used by autopass')
 
     # Command line's special components will not be included
     # in sys.argv list, and so for args.cmd list defined below.
     # They are all shell's, such as >, >>, <, <<, <<<, |, # comments,
     # and they are all supported!
     parser.add_argument('cmd', nargs=argparse.REMAINDER,
-                help='the command you want to executed')
+                help='the command to be executed')
     args = parser.parse_args()
 
     # check stdin if need to create another pipe
@@ -104,9 +104,9 @@ if __name__ == '__main__':
     if not isatty:
         srp, swp = os.pipe()
 
-    # Please Quote the Password when input manually.
+    # Please QUOTE the password when input manually!!
     # It's too easy to fail because of the special characters shell knows.
-    # Pay attention to character $, maybe it should be backslashed, \$.
+    # Pay attention to character $, maybe it should be escaped, like \$.
     if args.p is None:
         try:
             args.p = os.environ['AUTOPASS']
