@@ -18,7 +18,7 @@ import argparse
 import signal
 
 
-OS_READ_CHUNK = 1024
+OS_READ_CHUNK = 256
 
 
 def _comm(fd, passwd):
@@ -28,36 +28,33 @@ def _comm(fd, passwd):
 
     passed = False
     out = b''
-    slen = 0
+    pos = 0
     while True:
         try:
+            if passed:
+                print(os.read(fd,OS_READ_CHUNK).decode(),end='',flush=True)
+                continue
             out += os.read(fd, OS_READ_CHUNK)
         except OSError:
-            # The child process has been existed.
-            # When in case that no password is needed,
-            # here is the place to print all out.
-            print(out.decode(), end='', flush=True)
             break
 
-        print(out[slen:].decode(), end='', flush=True)
-        slen = len(out)
-        if passed:
-            out = b''
-            slen = 0
-            continue
+        print(out[pos:].decode(), end='', flush=True)
+        pos = len(out)
+
         # pattern for ssh and sudo
         if (b'Are you sure you want to continue'
-            b' connecting (yes/no/[fingerprint])?' in out):
+                b' connecting (yes/no/[fingerprint])?' in out):
             wf.write('yes\n'.encode())
             wf.flush()
             out = b''
-            slen = 0
+            pos = 0
         elif re.search(rb'[Pp]assword.*?:', out):
             wf.write((passwd+'\n').encode())
             wf.flush()
             passed = True
-            out = b''
-            slen = 0
+        # only check first OS_READ_CHUNK bytes
+        elif pos > OS_READ_CHUNK:
+            passed = True
 
 
 def _write_stdin(swp):
@@ -132,15 +129,15 @@ if __name__ == '__main__':
     # parent, must close(wp) first
     os.close(wp)
     with open(rp,'rb') as f:
-        out = f.read()
+        err = f.read()
     # not empty means error in child
-    if out:
+    if err:
         os.close(fd)
         if not isatty:
             os.close(srp)
             os.close(swp)
         os.wait()
-        print('* [autopass] os.execlp error:', out.decode())
+        print('* [autopass] os.execlp error:', err.decode())
         sys.exit(101)
 
     # check if need to write child's stdin
@@ -158,12 +155,7 @@ if __name__ == '__main__':
     th.start()
     th.join()
 
-    # try to close controlling terminal's fd.
-    try:
-        os.close(fd)
-    except OSError:
-        pass
-
+    # fd will be closed when chid is gone!
     # exit code
     _, wstatus = os.wait()
     ec = os.waitstatus_to_exitcode(wstatus)
