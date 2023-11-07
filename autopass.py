@@ -139,7 +139,8 @@ if __name__ == '__main__':
 
     # check if need to start SIGKILL timer
     if args.t:
-        threading.Timer(args.t, _timeout_kill, (pid,)).start()
+        timer = threading.Timer(args.t, _timeout_kill, (pid,))
+        timer.start()
 
     # communicate with control terminal of child
     th = threading.Thread(target=_comm,
@@ -147,6 +148,7 @@ if __name__ == '__main__':
                           daemon=True)
     th.start()
     th.join()
+    timer.cancel()
 
     # fd will be closed when chid is gone!
     # exit code
