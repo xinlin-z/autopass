@@ -18,14 +18,10 @@ import argparse
 import signal
 
 
-OS_READ_CHUNK = 256
+OS_READ_CHUNK = 512
 
 
 def _comm(fd, passwd):
-    # Buffered binary IO can make sure that write the whole piece down
-    # in one write call, but flush might be needed.
-    wf = open(fd, 'wb')
-
     passed = False
     out = b''
     pos = 0
@@ -40,17 +36,14 @@ def _comm(fd, passwd):
 
         print(out[pos:].decode(), end='', flush=True)
         pos = len(out)
-
         # pattern for ssh and sudo
         if (b'Are you sure you want to continue'
                 b' connecting (yes/no/[fingerprint])?' in out):
-            wf.write('yes\n'.encode())
-            wf.flush()
+            os.write(fd, b'yes\n')
             out = b''
             pos = 0
         elif re.search(rb'[Pp]assword.*?:', out):
-            wf.write((passwd+'\n').encode())
-            wf.flush()
+            os.write(fd, (passwd+'\n').encode())
             passed = True
         # only check first OS_READ_CHUNK bytes
         elif pos > OS_READ_CHUNK:
