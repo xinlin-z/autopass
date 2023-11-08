@@ -148,7 +148,10 @@ if __name__ == '__main__':
                           daemon=True)
     th.start()
     th.join()
-    timer.cancel()
+
+    # cancel timer if not timeout
+    if args.t:
+        timer.cancel()
 
     # fd will be closed when chid is gone!
     # exit code
