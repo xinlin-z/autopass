@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Enter password automatically for sudo, ssh, scp.
+Entering password automatically for sudo, ssh, scp.
 No interactive process supported!
 
 Author:    xinlin-z
