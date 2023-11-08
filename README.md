@@ -4,10 +4,8 @@
 * [Usage](#Usage)
 
 Entering password automatically for sudo, ssh (remote command) and scp,
-like sshpass.
-
-This is a pure python version which can help you input password for sudo,
-ssh, scp. For ssh, a `yes` confirmation is also issued automatically
+like sshpass. Autopass is a pure python version.
+For ssh, a `yes` confirmation is also issued automatically
 for you if necessary.
 
 **No third party module is needed! No need pexpect!**
@@ -25,8 +23,10 @@ $ python -m autopass -p'passwd' sudo <command>
 $ AUTOPASS='passwd' python -m autopass [-t<N>] ssh user@domain [-p port] <command>
 ```
 
-`-t<N>`, to specify a timeout in seconds. SIGKILL will be issued to
-child process when timeout. No timeout by default.
+`-p<passwd>`, specify the password.
+
+`-t<N>`, specify a timeout in seconds. SIGKILL will be issued to
+child process after timeout. No timeout by default.
 
 Password will be issued only once, so if the password is not correct,
 the child process will wait for a long time. This is your chance to
