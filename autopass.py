@@ -74,7 +74,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-V', '--version', action='version', version=_VER)
     parser.add_argument('-t', type=int, metavar='seconds',
-                help='timeout for issuing SIGKILL')
+                help='timeout for issuing SIGKILL to child process')
     parser.add_argument('-p', metavar='password',
                 help='the password string used by autopass')
 
