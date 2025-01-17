@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Entering password automatically for sudo, ssh, scp.
+Input password automatically for sudo, ssh and scp commands.
 No interactive process supported!
 
 Author:    xinlin-z
@@ -66,7 +66,7 @@ def _timeout_kill(pid):
         pass
 
 
-_VER = 'autopass V0.13 by xinlin-z'\
+_VER = 'autopass V0.14 by xinlin-z'\
        ' (https://github.com/xinlin-z/autopass)'
 
 
@@ -74,22 +74,17 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-V', '--version', action='version', version=_VER)
     parser.add_argument('-t', type=int, metavar='seconds',
-                help='timeout for issuing SIGKILL to child process')
+                help='waiting time for issuing SIGKILL to child process')
     parser.add_argument('-p', metavar='password',
-                help='the password string used by autopass')
+                help='the password used by autopass')
 
     # Command line's special components will neither be included
-    # in sys.argv list, and nor for args.cmd list defined below.
-    # They are all shell's, such as >, >>, <, <<, <<<, |, # comments,
-    # and they are all supported!
+    # in sys.argv list, and nor in args.cmd list defined below.
+    # They all belong to shell, such as >, >>, <, <<, <<<, | and
+    # even # comments, and they are all supported!
     parser.add_argument('cmd', nargs=argparse.REMAINDER,
-                help='the command to be executed')
+                help='the command to be executed underground')
     args = parser.parse_args()
-
-    # check stdin if need to create another pipe
-    isatty = sys.stdin.isatty()
-    if not isatty:
-        srp, swp = os.pipe()
 
     # Please single-quote the password when input manually!!
     # It's too easy to fail because of the special characters shell knows.
@@ -101,6 +96,11 @@ if __name__ == '__main__':
         except KeyError:
             print('* [autopass] no password found')
             sys.exit(1)
+
+    # check stdin if need to create another pipe
+    isatty = sys.stdin.isatty()
+    if not isatty:
+        srp, swp = os.pipe()
 
     # pipe & pty.fork
     rp, wp = os.pipe()
@@ -135,7 +135,9 @@ if __name__ == '__main__':
 
     # check if need to write child's stdin
     if not isatty:
-        threading.Thread(target=_write_stdin,args=(swp,),daemon=True).start()
+        threading.Thread(target=_write_stdin,
+                         args=(swp,),
+                         daemon=True).start()
 
     # check if need to start SIGKILL timer
     if args.t:
