@@ -55,10 +55,14 @@ def _comm(fd, passwd):
 
 
 def _write_stdin(swp):
+    """ read parent's stdin,
+        write to the pipe connected with child """
     stdin = sys.stdin.fileno()
     wf = open(swp, 'wb')  # buffered binary IO
-    while out:=os.read(stdin,OS_READ_CHUNK):
-        wf.write(out)
+
+    while cont:=os.read(stdin,OS_READ_CHUNK):
+        wf.write(cont)
+
     wf.flush()  # flush at last
     wf.close()  # closefd=True is the default in open call
 
@@ -96,18 +100,21 @@ if __name__ == '__main__':
     # you use double-quote!
     if args.p is None:
         try:
-            args.p = os.environ['AUTOPASS'].strip()
+            args.p = os.environ['AUTOPASS']
         except KeyError:
             log.error('no password found')
             sys.exit(1)
 
-    # check stdin if need to create another pipe
+    args.p = args.p.strip()
+
+    # pipe
+    rp, wp = os.pipe()
+
+    # check stdin if need to create another pipe,
+    # used to redirect stdin of child process
     isatty = sys.stdin.isatty()
     if not isatty:
         srp, swp = os.pipe()
-
-    # pipe & pty.fork
-    rp, wp = os.pipe()
 
     # fd is the master side of pty connected with child process
     pid, fd = pty.fork()
@@ -127,10 +134,14 @@ if __name__ == '__main__':
             os.close(wp)
             os._exit(1)
 
-    # parent, must close(wp) first
+    # parent, must close wp, first,
+    # read end can get EOF only if all write ends have been closed.
     os.close(wp)
+
+    # rp will be closed automatically when this with block exists
     with open(rp,'rb') as f:
         err = f.read()
+
     # not empty means error in child
     if err:
         os.close(fd)
@@ -154,7 +165,7 @@ if __name__ == '__main__':
 
     # communicate with controlling terminal of child process
     th = threading.Thread(target=_comm,
-                          args=(fd,args.p.strip()),
+                          args=(fd,args.p),
                           daemon=True)
     th.start()
     th.join()
