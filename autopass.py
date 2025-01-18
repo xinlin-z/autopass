@@ -17,6 +17,10 @@ import re
 import argparse
 import signal
 
+import logging
+logging.basicConfig(format='%(name)s:%(levelname)s:%(asctime)s:%(message)s')
+log = logging.getLogger('[autopass]')
+
 
 OS_READ_CHUNK = 512
 
@@ -94,7 +98,7 @@ if __name__ == '__main__':
         try:
             args.p = os.environ['AUTOPASS'].strip()
         except KeyError:
-            print('* [autopass] no password found')
+            log.error('no password found')
             sys.exit(1)
 
     # check stdin if need to create another pipe
@@ -104,8 +108,12 @@ if __name__ == '__main__':
 
     # pipe & pty.fork
     rp, wp = os.pipe()
+
+    # fd is the master side of pty connected with child process
     pid, fd = pty.fork()
-    if pid == 0:  # child
+
+    # child
+    if pid == 0:
         os.close(rp)
         fcntl.fcntl(wp, fcntl.F_SETFD, fcntl.FD_CLOEXEC)
         try:
@@ -130,7 +138,7 @@ if __name__ == '__main__':
             os.close(srp)
             os.close(swp)
         os.wait()
-        print('* [autopass] os.execlp error:', err.decode())
+        log.error('os.execlp error: %s', err.decode())
         sys.exit(101)
 
     # check if need to write child's stdin
@@ -139,12 +147,12 @@ if __name__ == '__main__':
                          args=(swp,),
                          daemon=True).start()
 
-    # check if need to start SIGKILL timer
+    # check if need to set SIGKILL timer
     if args.t:
         timer = threading.Timer(args.t, _timeout_kill, (pid,))
         timer.start()
 
-    # communicate with control terminal of child
+    # communicate with controlling terminal of child process
     th = threading.Thread(target=_comm,
                           args=(fd,args.p.strip()),
                           daemon=True)
@@ -155,15 +163,16 @@ if __name__ == '__main__':
     if args.t:
         timer.cancel()
 
-    # fd will be closed when chid is gone!
+    # fd would be closed when chid is gone!
     # exit code
     _, wstatus = os.wait()
     ec = os.waitstatus_to_exitcode(wstatus)
     # If command process catches signals and then exit normally,
     # it appears exit normally, os.WIFSIGNALED is False.
     if os.WIFSIGNALED(wstatus):
-        print('\n* [autopass] child process was killed by %d' % ec)
+        log.warning('child process was killed by signal %d' % ec)
         sys.exit(102)
-    sys.exit(ec)
 
+    # exit with child process's exitcode
+    sys.exit(ec)
 
