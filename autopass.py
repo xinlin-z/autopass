@@ -40,6 +40,7 @@ def _comm(fd, passwd):
 
         print(out[pos:].decode(), end='', flush=True)
         pos = len(out)
+
         # pattern for ssh and sudo
         if (b'Are you sure you want to continue'
                 b' connecting (yes/no/[fingerprint])?' in out):
@@ -105,13 +106,11 @@ if __name__ == '__main__':
             log.error('no password found')
             sys.exit(1)
 
-    args.p = args.p.strip()
-
     # pipe
     rp, wp = os.pipe()
 
     # check stdin if need to create another pipe,
-    # used to redirect stdin of child process
+    # used to redirect stdin of parent to child process
     isatty = sys.stdin.isatty()
     if not isatty:
         srp, swp = os.pipe()
@@ -165,7 +164,7 @@ if __name__ == '__main__':
 
     # communicate with controlling terminal of child process
     th = threading.Thread(target=_comm,
-                          args=(fd,args.p),
+                          args=(fd,args.p.strip()),
                           daemon=True)
     th.start()
     th.join()
