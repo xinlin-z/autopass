@@ -57,15 +57,17 @@ def _comm(fd, passwd):
 
 def _write_stdin(swp):
     """ read parent's stdin,
-        write to the pipe connected with child """
-    stdin = sys.stdin.fileno()
-    wf = open(swp, 'wb')  # buffered binary IO
+        write to the pipe connected with child'stdin """
+    with open(sys.stdin.fileno(),'rb') as f,\
+         open(swp,'wb') as g:
 
-    while cont:=os.read(stdin,OS_READ_CHUNK):
-        wf.write(cont)
+        while cont:=f.read(256):
+            g.write(cont)
 
-    wf.flush()  # flush at last
-    wf.close()  # closefd=True is the default in open call
+            # open with wb option, block buffering,
+            # default block size is 4096 bytes,
+            # here we flush for each 256 bytes.
+            g.flush()
 
 
 def _timeout_kill(pid):
