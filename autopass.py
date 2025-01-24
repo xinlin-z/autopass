@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Input password automatically for sudo, ssh and scp commands.
+Inputting password automatically for sudo, ssh and scp commands.
 No interactive process supported!
 
 Author:    xinlin-z
@@ -169,7 +169,7 @@ if __name__ == '__main__':
     th.start()
     th.join()
 
-    # cancel timer if not timeout
+    # cancel timer if no timeout
     if args.t:
         timer.cancel()
 
