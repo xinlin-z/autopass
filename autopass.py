@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Inputting password automatically for sudo, ssh and scp commands.
+Entering password automatically for sudo, ssh and scp commands.
 No interactive process supported!
 
 Author:    xinlin-z
@@ -16,42 +16,33 @@ import threading
 import re
 import argparse
 import signal
-
 import logging
 logging.basicConfig(format='%(name)s:%(levelname)s:%(asctime)s:%(message)s')
 log = logging.getLogger('[autopass]')
 
 
-OS_READ_CHUNK = 512
-
-
 def _comm(fd, passwd):
+    """ enter password only in first line,
+        print out all output """
     passed = False
     out = b''
     pos = 0
     while True:
         try:
-            if passed:
-                print(os.read(fd,OS_READ_CHUNK).decode(),end='',flush=True)
-                continue
-            out += os.read(fd, OS_READ_CHUNK)
+            while passed:
+                print(os.read(fd,128).decode(),end='',flush=True)
+            out += os.read(fd, 128)
         except OSError:
             break
 
         print(out[pos:].decode(), end='', flush=True)
         pos = len(out)
 
-        # pattern for ssh and sudo
-        if (b'Are you sure you want to continue'
-                b' connecting (yes/no/[fingerprint])?' in out):
-            os.write(fd, b'yes\n')
-            out = b''
-            pos = 0
-        elif re.search(rb'[Pp]assword.*?:', out):
-            os.write(fd, (passwd+'\n').encode())
+        # only issue password in first line
+        if re.search(rb'\n',out):
             passed = True
-        # only check first OS_READ_CHUNK bytes
-        elif pos > OS_READ_CHUNK:
+        elif re.search(rb'[Pp]assword.*?:',out):
+            os.write(fd, (passwd+'\n').encode())
             passed = True
 
 
