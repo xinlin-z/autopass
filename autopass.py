@@ -17,7 +17,7 @@ import re
 import argparse
 import signal
 import logging
-logging.basicConfig(format='%(name)s:%(levelname)s:%(asctime)s:%(message)s')
+logging.basicConfig(format='%(name)s:%(levelname)s:%(asctime)s: %(message)s')
 log = logging.getLogger('[autopass]')
 
 
@@ -40,6 +40,7 @@ def _comm(fd, passwd):
 
         # only issue password in first line
         if re.search(rb'\n',out):
+            log.warning('password not issued due to not first line')
             passed = True
         elif re.search(rb'[Pp]assword.*?:',out):
             os.write(fd, (passwd+'\n').encode())
