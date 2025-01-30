@@ -26,23 +26,23 @@ def _comm(fd, passwd):
         print out all output """
     passed = False
     out = b''
-    pos = 0
+    cont = b''
     while True:
         try:
             while passed:
                 print(os.read(fd,128).decode(),end='',flush=True)
-            out += os.read(fd, 128)
+            out = os.read(fd, 128)
         except OSError:
             break
 
-        print(out[pos:].decode(), end='', flush=True)
-        pos = len(out)
+        print(out.decode(), end='', flush=True)
+        cont += out
 
         # only issue password in first line
-        if re.search(rb'\n',out):
-            log.warning('password not issued due to not first line')
+        if re.search(rb'\n',cont):
+            log.warning('password not issued due to not first line!')
             passed = True
-        elif re.search(rb'[Pp]assword.*?:',out):
+        elif re.search(rb'[Pp]assword.*?:',cont):
             os.write(fd, (passwd+'\n').encode())
             passed = True
 
