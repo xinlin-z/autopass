@@ -5,7 +5,7 @@ No interactive process supported!
 
 Author:    xinlin-z
 Github:    https://github.com/xinlin-z/autopass
-Blog:      https://cs.pynote.net
+Blog:      https://CS4096.com
 License:   MIT
 """
 import sys
