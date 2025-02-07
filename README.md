@@ -6,7 +6,7 @@
 Entering password automatically for sudo, ssh (remote command) and scp,
 like sshpass. However, autopass is a pure Python version script.
 
-**No third party module is needed! No need pexpect!**
+**No third party module is needed!**
 
 ## Installation
 
@@ -26,7 +26,7 @@ $ AUTOPASS='passwd' python -m autopass [-t<N>] ssh user@domain [-p port] <comman
 `-t<N>`, specify a timeout in seconds. SIGKILL will be issued to
 child process after timeout. No timeout by default.
 
-**Password will be issued only once and only in the first line of output
+**Password would be issued only once and only in the first line of output
 for security reason**. So if the password is not correct,
 the child process will wait for a long time. This is your chance to
 set a timeout. Other cases such as a
@@ -36,7 +36,8 @@ You can always place a
 relatively large timeout
 value to keep you from waiting like forever.
 
-Password can also be exported to `AUTOPASS` environment variable.
+Password can also be taken from `AUTOPASS` environment variable.
+But the password specified by `-p` has priority.
 
 ``` shell
 $ export AUTOPASS='passwd'
